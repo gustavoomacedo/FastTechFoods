@@ -1,0 +1,154 @@
+version: '3.8'
+
+services:
+  # MongoDB
+  mongodb:
+    image: mongo:7.0
+    container_name: fasttech-mongodb
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongo-init:/docker-entrypoint-initdb.d
+
+  # RabbitMQ
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: fasttech-rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: password123
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  # Redis (para cache)
+  redis:
+    image: redis:7-alpine
+    container_name: fasttech-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  # AuthService
+  authservice:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile
+      args:
+        PROJECT: AuthService
+    container_name: fasttech-authservice
+    restart: always
+    ports:
+      - "7001:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__MongoDb=mongodb://admin:password123@mongodb:27017
+      - AuthSettings__DatabaseName=fasttech_auth
+    depends_on:
+      - mongodb
+
+  # MenuService
+  menuservice:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile
+      args:
+        PROJECT: MenuService
+    container_name: fasttech-menuservice
+    restart: always
+    ports:
+      - "7002:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__MongoDb=mongodb://admin:password123@mongodb:27017
+      - MenuSettings__DatabaseName=fasttech_menu
+    depends_on:
+      - mongodb
+
+  # KitchenService
+  kitchenservice:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile
+      args:
+        PROJECT: KitchenService
+    container_name: fasttech-kitchenservice
+    restart: always
+    ports:
+      - "7003:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__MongoDb=mongodb://admin:password123@mongodb:27017
+      - KitchenSettings__DatabaseName=fasttech_kitchen
+    depends_on:
+      - mongodb
+
+  # OrderService
+  orderservice:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile
+      args:
+        PROJECT: OrderService
+    container_name: fasttech-orderservice
+    restart: always
+    ports:
+      - "7004:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__MongoDb=mongodb://admin:password123@mongodb:27017
+      - OrderSettings__DatabaseName=fasttech_order
+      - OrderSettings__MenuServiceUrl=http://menuservice
+    depends_on:
+      - mongodb
+      - menuservice
+
+  # Prometheus (para métricas)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: fasttech-prometheus
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+
+  # Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: fasttech-grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin123
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources
+
+volumes:
+  mongodb_data:
+  rabbitmq_data:
+  redis_data:
+  prometheus_data:
+  grafana_data: 

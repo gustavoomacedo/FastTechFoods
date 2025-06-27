@@ -1,0 +1,98 @@
+@MenuService_HostAddress = http://localhost:5057
+
+GET {{MenuService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+### MenuService API Tests
+
+### Criar produtos de teste
+POST {{baseUrl}}/api/test/produtos
+
+### Obter todos os produtos (teste)
+GET {{baseUrl}}/api/test/produtos
+
+### Limpar produtos de teste
+DELETE {{baseUrl}}/api/test/produtos
+
+### Obter todos os produtos (público)
+GET {{baseUrl}}/api/menu/produtos
+
+### Obter produtos disponíveis (público)
+GET {{baseUrl}}/api/menu/produtos/disponiveis
+
+### Obter produtos por categoria (público)
+GET {{baseUrl}}/api/menu/produtos/categoria/Lanche
+
+### Obter produtos em destaque (público)
+GET {{baseUrl}}/api/menu/produtos/destaques
+
+### Buscar produtos com filtros (público)
+GET {{baseUrl}}/api/menu/produtos/buscar?nome=burger&categoria=Lanche&disponivel=true&precoMinimo=10&precoMaximo=30
+
+### Obter produto por ID (público)
+GET {{baseUrl}}/api/menu/produtos/{{produtoId}}
+
+### Obter produtos por IDs (público)
+POST {{baseUrl}}/api/menu/produtos/por-ids
+Content-Type: application/json
+
+[
+  "{{produtoId1}}",
+  "{{produtoId2}}",
+  "{{produtoId3}}"
+]
+
+### Criar produto (requer autenticação)
+POST {{baseUrl}}/api/menu/produtos
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nome": "Novo Produto",
+  "descricao": "Descrição do novo produto",
+  "preco": 19.90,
+  "categoria": "Lanche",
+  "disponivel": true,
+  "ingredientes": ["Ingrediente 1", "Ingrediente 2"],
+  "alergenos": ["Glúten"],
+  "tempoPreparoMinutos": 15,
+  "destaque": false,
+  "ordemExibicao": 10
+}
+
+### Atualizar produto (requer autenticação)
+PUT {{baseUrl}}/api/menu/produtos/{{produtoId}}
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "nome": "Produto Atualizado",
+  "preco": 22.90,
+  "disponivel": true,
+  "destaque": true
+}
+
+### Deletar produto (requer autenticação)
+DELETE {{baseUrl}}/api/menu/produtos/{{produtoId}}
+Authorization: Bearer {{token}}
+
+### Alterar disponibilidade (requer autenticação)
+PATCH {{baseUrl}}/api/menu/produtos/{{produtoId}}/disponibilidade
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+false
+
+### Obter estatísticas (requer autenticação)
+GET {{baseUrl}}/api/menu/estatisticas
+Authorization: Bearer {{token}}
+
+### Variables
+@baseUrl = https://localhost:7002
+@token = your-jwt-token-here
+@produtoId = your-produto-id-here
+@produtoId1 = produto-id-1
+@produtoId2 = produto-id-2
+@produtoId3 = produto-id-3

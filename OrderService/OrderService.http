@@ -1,0 +1,163 @@
+@OrderService_HostAddress = http://localhost:5243
+
+GET {{OrderService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+### OrderService API Tests
+
+### Criar clientes de teste
+POST {{baseUrl}}/api/test/clientes
+
+### Criar pedidos de teste
+POST {{baseUrl}}/api/test/pedidos
+
+### Obter todos os clientes (teste)
+GET {{baseUrl}}/api/test/clientes
+
+### Obter todos os pedidos (teste)
+GET {{baseUrl}}/api/test/pedidos
+
+### Obter produtos do MenuService (teste)
+GET {{baseUrl}}/api/test/produtos
+
+### Limpar dados de teste
+DELETE {{baseUrl}}/api/test/limpar
+
+### Cadastrar cliente
+POST {{baseUrl}}/api/cliente/cadastro
+Content-Type: application/json
+
+{
+  "nome": "Novo Cliente",
+  "email": "novo.cliente@email.com",
+  "cpf": "12345678901",
+  "telefone": "(11) 99999-9999",
+  "endereco": "Rua Nova, 123",
+  "complemento": "Apto 10",
+  "cep": "01234-567",
+  "cidade": "São Paulo",
+  "estado": "SP"
+}
+
+### Login do cliente
+POST {{baseUrl}}/api/cliente/login
+Content-Type: application/json
+
+{
+  "identificador": "novo.cliente@email.com",
+  "senha": "123456"
+}
+
+### Obter cliente por ID
+GET {{baseUrl}}/api/cliente/{{clienteId}}
+
+### Obter cliente por email
+GET {{baseUrl}}/api/cliente/email/novo.cliente@email.com
+
+### Obter cliente por CPF
+GET {{baseUrl}}/api/cliente/cpf/12345678901
+
+### Atualizar cliente
+PUT {{baseUrl}}/api/cliente/{{clienteId}}
+Content-Type: application/json
+
+{
+  "nome": "Cliente Atualizado",
+  "telefone": "(11) 88888-8888"
+}
+
+### Desativar cliente
+DELETE {{baseUrl}}/api/cliente/{{clienteId}}
+
+### Obter produtos disponíveis
+GET {{baseUrl}}/api/order/produtos
+
+### Criar pedido
+POST {{baseUrl}}/api/order/pedidos
+Content-Type: application/json
+
+{
+  "clienteId": "{{clienteId}}",
+  "clienteNome": "João Silva",
+  "clienteTelefone": "(11) 99999-1111",
+  "clienteEmail": "joao.silva@email.com",
+  "itens": [
+    {
+      "produtoId": "{{produtoId1}}",
+      "quantidade": 2,
+      "observacoes": "Sem cebola"
+    },
+    {
+      "produtoId": "{{produtoId2}}",
+      "quantidade": 1
+    }
+  ],
+  "formaEntrega": "Delivery",
+  "enderecoEntrega": "Rua das Flores, 123",
+  "complementoEntrega": "Apto 45",
+  "observacoes": "Entregar no portão",
+  "formaPagamento": "Cartão de Crédito",
+  "taxaEntrega": 5.00,
+  "desconto": 0
+}
+
+### Obter pedido por ID
+GET {{baseUrl}}/api/order/pedidos/{{pedidoId}}
+
+### Obter pedido por número
+GET {{baseUrl}}/api/order/pedidos/numero/{{numeroPedido}}
+
+### Obter pedidos do cliente
+GET {{baseUrl}}/api/order/pedidos/cliente/{{clienteId}}
+
+### Cancelar pedido
+POST {{baseUrl}}/api/order/pedidos/{{pedidoId}}/cancelar
+Content-Type: application/json
+
+{
+  "motivoCancelamento": "Mudança de planos",
+  "clienteId": "{{clienteId}}"
+}
+
+### Atualizar status do pedido (requer autenticação)
+PUT {{baseUrl}}/api/order/pedidos/{{pedidoId}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "status": "Confirmado",
+  "observacoes": "Pedido confirmado pelo atendente",
+  "funcionarioId": "func-001",
+  "funcionarioNome": "João Atendente"
+}
+
+### Obter todos os pedidos (requer autenticação)
+GET {{baseUrl}}/api/order/pedidos
+Authorization: Bearer {{token}}
+
+### Obter pedidos por status (requer autenticação)
+GET {{baseUrl}}/api/order/pedidos/status/Criado
+Authorization: Bearer {{token}}
+
+### Obter pedidos recentes (requer autenticação)
+GET {{baseUrl}}/api/order/pedidos/recentes?limite=5
+Authorization: Bearer {{token}}
+
+### Obter estatísticas (requer autenticação)
+GET {{baseUrl}}/api/order/estatisticas
+Authorization: Bearer {{token}}
+
+### Obter estatísticas dos clientes (requer autenticação)
+GET {{baseUrl}}/api/cliente/estatisticas
+Authorization: Bearer {{token}}
+
+### Variables
+@baseUrl = https://localhost:7003
+@token = your-jwt-token-here
+@clienteId = your-cliente-id-here
+@pedidoId = your-pedido-id-here
+@numeroPedido = PED-20241201-0001
+@produtoId1 = produto-id-1
+@produtoId2 = produto-id-2

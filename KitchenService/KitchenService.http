@@ -1,0 +1,77 @@
+@KitchenService_HostAddress = http://localhost:5256
+
+GET {{KitchenService_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
+
+### KitchenService API Tests
+
+### Obter todos os pedidos
+GET {{baseUrl}}/api/kitchen/pedidos
+Authorization: Bearer {{token}}
+
+### Obter pedidos pendentes
+GET {{baseUrl}}/api/kitchen/pedidos/pendentes
+Authorization: Bearer {{token}}
+
+### Obter pedidos por status
+GET {{baseUrl}}/api/kitchen/pedidos/status/Pendente
+Authorization: Bearer {{token}}
+
+### Obter pedido por ID
+GET {{baseUrl}}/api/kitchen/pedidos/{{pedidoId}}
+Authorization: Bearer {{token}}
+
+### Obter pedido por número
+GET {{baseUrl}}/api/kitchen/pedidos/numero/PED-001
+Authorization: Bearer {{token}}
+
+### Aceitar pedido
+POST {{baseUrl}}/api/kitchen/pedidos/{{pedidoId}}/aceitar
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "pedidoId": "{{pedidoId}}",
+  "funcionarioId": "func-001",
+  "funcionarioNome": "João Cozinheiro"
+}
+
+### Rejeitar pedido
+POST {{baseUrl}}/api/kitchen/pedidos/{{pedidoId}}/rejeitar
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "pedidoId": "{{pedidoId}}",
+  "funcionarioId": "func-001",
+  "funcionarioNome": "João Cozinheiro",
+  "motivoRejeicao": "Ingrediente indisponível"
+}
+
+### Atualizar status do pedido
+PUT {{baseUrl}}/api/kitchen/pedidos/{{pedidoId}}/status
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "pedidoId": "{{pedidoId}}",
+  "novoStatus": "EmPreparo",
+  "funcionarioId": "func-001",
+  "funcionarioNome": "João Cozinheiro",
+  "observacoes": "Iniciando preparo"
+}
+
+### Obter estatísticas
+GET {{baseUrl}}/api/kitchen/estatisticas
+Authorization: Bearer {{token}}
+
+### Obter pedidos por período
+GET {{baseUrl}}/api/kitchen/pedidos/periodo?inicio=2024-01-01T00:00:00Z&fim=2024-01-31T23:59:59Z
+Authorization: Bearer {{token}}
+
+### Variables
+@baseUrl = https://localhost:7001
+@token = your-jwt-token-here
+@pedidoId = your-pedido-id-here
