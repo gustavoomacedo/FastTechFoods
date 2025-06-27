@@ -13,10 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KitchenService", "KitchenSe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastTech.Tests.Unit", "FastTech.Tests.Unit\FastTech.Tests.Unit.csproj", "{0E276A45-E549-638F-4DED-A076A1202970}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentos", "Documentos", "{268944B1-0186-4D6D-91A9-7D0E6757B422}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Itens de Solução", "Itens de Solução", "{380A7511-A354-6D7A-0CC0-8FA1F1BA7B6C}"
 	ProjectSection(SolutionItems) = preProject
-		..\TechChallenge\docs\FastTech_Foods_MVP_Architecture_DDD.md = ..\TechChallenge\docs\FastTech_Foods_MVP_Architecture_DDD.md
-		..\TechChallenge\docs\FastTech_Foods_MVP_Complete_Guide.md = ..\TechChallenge\docs\FastTech_Foods_MVP_Complete_Guide.md
+		docs\FastTech_Foods_MVP_Architecture_DDD.md = docs\FastTech_Foods_MVP_Architecture_DDD.md
+		docs\FastTech_Foods_MVP_Complete_Guide.md = docs\FastTech_Foods_MVP_Complete_Guide.md
 	EndProjectSection
 EndProject
 Global
