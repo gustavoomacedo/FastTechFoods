@@ -13,6 +13,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KitchenService", "KitchenSe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FastTech.Tests.Unit", "FastTech.Tests.Unit\FastTech.Tests.Unit.csproj", "{0E276A45-E549-638F-4DED-A076A1202970}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		AuthService\FastTech_Foods_MVP_Architecture_DDD.md = AuthService\FastTech_Foods_MVP_Architecture_DDD.md
+		AuthService\FastTech_Foods_MVP_Complete_Guide.md = AuthService\FastTech_Foods_MVP_Complete_Guide.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
