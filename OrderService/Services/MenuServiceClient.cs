@@ -88,9 +88,20 @@ public class ProdutoMenu
     public string Nome { get; set; } = string.Empty;
     public string? Descricao { get; set; }
     public decimal Preco { get; set; }
-    public string Categoria { get; set; } = string.Empty;
+    public CategoriaProduto Categoria { get; set; }
     public bool Disponivel { get; set; }
     public List<string> Ingredientes { get; set; } = new();
     public List<string> Alergenos { get; set; } = new();
     public int TempoPreparoMinutos { get; set; }
-} 
+}
+
+
+public enum CategoriaProduto
+{
+    Lanche,
+    Bebida,
+    Sobremesa,
+    Acompanhamento,
+    Combo,
+    Promocao
+}

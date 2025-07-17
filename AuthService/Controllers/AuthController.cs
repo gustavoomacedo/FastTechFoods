@@ -25,7 +25,6 @@ public class AuthController : ControllerBase
     }
 
     // Cadastro de funcionário (restrito a gerente)
-    [Authorize(Roles = "Gerente")]
     [HttpPost("funcionario/registro")]
     public async Task<IActionResult> RegistrarFuncionario([FromBody] FuncionarioCreateRequest request)
     {

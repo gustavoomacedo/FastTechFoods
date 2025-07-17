@@ -22,8 +22,8 @@ public class MessageService : IDisposable
         var factory = new ConnectionFactory()
         {
             HostName = settings.Value.RabbitMQHost ?? "localhost",
-            UserName = settings.Value.RabbitMQUser ?? "admin",
-            Password = settings.Value.RabbitMQPassword ?? "password123",
+            UserName = settings.Value.RabbitMQUser ?? "guest",
+            Password = settings.Value.RabbitMQPassword ?? "guest",
             Port = settings.Value.RabbitMQPort > 0 ? settings.Value.RabbitMQPort : 5672
         };
 

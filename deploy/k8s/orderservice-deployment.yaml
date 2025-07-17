@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: authservice
+  name: orderservice
   namespace: fasttech-foods
   labels:
-    app: authservice
+    app: orderservice
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: authservice
+      app: orderservice
   template:
     metadata:
       labels:
-        app: authservice
+        app: orderservice
     spec:
       containers:
-      - name: authservice
-        image: gustavoomacedo/authservice:latest
+      - name: orderservice
+        image: gustavoomacedo/orderservice:latest
         ports:
         - containerPort: 80
         env:
@@ -28,13 +28,10 @@ spec:
             secretKeyRef:
               name: mongodb-secret
               key: connection-string
-        - name: AuthSettings__DatabaseName
-          value: "fasttech_auth"
-        - name: AuthSettings__JwtSecret
-          valueFrom:
-            secretKeyRef:
-              name: jwt-secret
-              key: secret-key
+        - name: OrderSettings__DatabaseName
+          value: "fasttech_orders"
+        - name: MenuServiceUrl
+          value: "http://menuservice-service:80"
         resources:
           requests:
             memory: "256Mi"
@@ -58,15 +55,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: authservice-service
+  name: orderservice-service
   namespace: fasttech-foods
 spec:
   selector:
-    app: authservice
+    app: orderservice
   ports:
   - protocol: TCP
     port: 80
     targetPort: 80
-    nodePort: 30001
+    nodePort: 30004
   type: NodePort
  

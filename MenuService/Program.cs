@@ -7,8 +7,6 @@ using MenuService.Repositories;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -41,7 +39,7 @@ builder.Services.Configure<MenuSettings>(builder.Configuration.GetSection("MenuS
 // Configurar AuthSettings (para validação JWT)
 builder.Services.Configure<AuthSettings>(builder.Configuration.GetSection("AuthSettings"));
 var authSettings = builder.Configuration.GetSection("AuthSettings").Get<AuthSettings>();
-var key = Encoding.ASCII.GetBytes(authSettings?.JwtSecret ?? "default-secret-key-for-development");
+var key = Encoding.ASCII.GetBytes(authSettings?.JwtSecret ?? "default_secret_key");
 
 builder.Services.AddAuthentication(options =>
 {
@@ -56,8 +54,11 @@ builder.Services.AddAuthentication(options =>
     {
         ValidateIssuerSigningKey = true,
         IssuerSigningKey = new SymmetricSecurityKey(key),
-        ValidateIssuer = false,
-        ValidateAudience = false
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidIssuer = authSettings?.JwtIssuer,
+        ValidAudience = authSettings?.JwtAudience,
+        ClockSkew = TimeSpan.Zero
     };
 });
 
@@ -74,20 +75,36 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Configure the HTTP request pipeline.
+//if (!app.Environment.IsDevelopment())
+//{
+//    builder.WebHost.ConfigureKestrel(serverOptions =>
+//    {
+//        serverOptions.ListenAnyIP(8080);
+//    });
+//}
+
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.ListenAnyIP(80);
+});
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
+
 
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapGet("/health", () =>
+{
+    return "Healthy";
+})
+.WithName("GetHealth");
 
 app.MapControllers();
 
@@ -102,4 +119,7 @@ record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 public class AuthSettings
 {
     public string JwtSecret { get; set; } = string.Empty;
+    public string JwtIssuer { get; set; } = string.Empty;
+    public string JwtAudience { get; set; } = string.Empty;
+    public int JwtExpirationHours { get; set; } = 24;
 }

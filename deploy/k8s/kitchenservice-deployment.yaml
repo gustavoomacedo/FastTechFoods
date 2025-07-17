@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: authservice
+  name: kitchenservice
   namespace: fasttech-foods
   labels:
-    app: authservice
+    app: kitchenservice
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: authservice
+      app: kitchenservice
   template:
     metadata:
       labels:
-        app: authservice
+        app: kitchenservice
     spec:
       containers:
-      - name: authservice
-        image: gustavoomacedo/authservice:latest
+      - name: kitchenservice
+        image: gustavoomacedo/kitchenservice:latest
         ports:
         - containerPort: 80
         env:
@@ -28,13 +28,8 @@ spec:
             secretKeyRef:
               name: mongodb-secret
               key: connection-string
-        - name: AuthSettings__DatabaseName
-          value: "fasttech_auth"
-        - name: AuthSettings__JwtSecret
-          valueFrom:
-            secretKeyRef:
-              name: jwt-secret
-              key: secret-key
+        - name: KitchenSettings__DatabaseName
+          value: "fasttech_kitchen"
         resources:
           requests:
             memory: "256Mi"
@@ -58,15 +53,15 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: authservice-service
+  name: kitchenservice-service
   namespace: fasttech-foods
 spec:
   selector:
-    app: authservice
+    app: kitchenservice
   ports:
   - protocol: TCP
     port: 80
     targetPort: 80
-    nodePort: 30001
+    nodePort: 30002
   type: NodePort
  
