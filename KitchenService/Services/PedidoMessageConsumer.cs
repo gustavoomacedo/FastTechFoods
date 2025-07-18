@@ -5,6 +5,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Options;
 using KitchenService.Models;
 using KitchenService.Repositories;
+using System.Net.Http;
 
 namespace KitchenService.Services;
 
@@ -16,11 +17,13 @@ public class PedidoMessageConsumer : BackgroundService
     private readonly PedidoRepository _pedidoRepository;
     private readonly string _queueName = "kitchen_queue";
     private readonly string _exchangeName = "fasttech_exchange";
+    private readonly IHttpClientFactory _httpClientFactory;
 
-    public PedidoMessageConsumer(IOptions<KitchenSettings> settings, PedidoRepository pedidoRepository, ILogger<PedidoMessageConsumer> logger)
+    public PedidoMessageConsumer(IOptions<KitchenSettings> settings, PedidoRepository pedidoRepository, ILogger<PedidoMessageConsumer> logger, IHttpClientFactory httpClientFactory)
     {
         _pedidoRepository = pedidoRepository;
         _logger = logger;
+        _httpClientFactory = httpClientFactory;
         
         var factory = new ConnectionFactory()
         {
@@ -112,30 +115,73 @@ public class PedidoMessageConsumer : BackgroundService
     {
         var pedidoId = messageData.GetProperty("PedidoId").GetString();
         var numeroPedido = messageData.GetProperty("NumeroPedido").GetString();
-        var clienteId = messageData.GetProperty("ClienteId").GetString();
         var valorTotal = messageData.GetProperty("ValorTotal").GetDecimal();
 
         _logger.LogInformation("Novo pedido recebido na cozinha: {NumeroPedido} - R$ {ValorTotal}", numeroPedido, valorTotal);
 
-        // Atualizar status do pedido para Aceito no banco de dados
         if (!string.IsNullOrEmpty(pedidoId))
         {
-            var sucesso = await _pedidoRepository.AtualizarStatusAsync(pedidoId, StatusPedido.Aceito, null, null);
-            if (sucesso)
+            var pedidoExistente = await _pedidoRepository.ObterPorIdAsync(pedidoId);
+            if (pedidoExistente == null)
             {
-                _logger.LogInformation("Status do pedido {NumeroPedido} atualizado para Aceito.", numeroPedido);
+                // Buscar detalhes do pedido no OrderService
+                var httpClient = _httpClientFactory.CreateClient();
+                var response = await httpClient.GetAsync($"http://orderservice-service:80/api/order/pedidos/{pedidoId}");
+                if (response.IsSuccessStatusCode)
+                {
+                    var pedidoOrderService = await response.Content.ReadFromJsonAsync<OrderServicePedidoDto>();
+                    if (pedidoOrderService != null)
+                    {
+                        var novoPedido = new Pedido
+                        {
+                            Id = pedidoOrderService.Id,
+                            NumeroPedido = pedidoOrderService.NumeroPedido,
+                            DataCriacao = pedidoOrderService.DataCriacao,
+                            ClienteNome = pedidoOrderService.ClienteNome,
+                            ClienteTelefone = pedidoOrderService.ClienteTelefone,
+                            EnderecoEntrega = pedidoOrderService.EnderecoEntrega,
+                            ValorTotal = pedidoOrderService.ValorTotal,
+                            Status = StatusPedido.Pendente,
+                            Observacoes = pedidoOrderService.Observacoes,
+                            Itens = pedidoOrderService.Itens.Select(i => new ItemPedido
+                            {
+                                Nome = i.ProdutoNome ?? i.Nome ?? "Produto",
+                                Quantidade = i.Quantidade,
+                                PrecoUnitario = i.PrecoUnitario,
+                                Observacoes = i.Observacoes
+                            }).ToList()
+                        };
+                        await _pedidoRepository.CriarAsync(novoPedido);
+                        _logger.LogInformation("Pedido {NumeroPedido} criado no banco da cozinha.", numeroPedido);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Não foi possível desserializar o pedido do OrderService para o pedido {NumeroPedido}.", numeroPedido);
+                    }
+                }
+                else
+                {
+                    _logger.LogWarning("Não foi possível obter detalhes do pedido {NumeroPedido} do OrderService. Status: {Status}", numeroPedido, response.StatusCode);
+                }
             }
             else
             {
-                _logger.LogWarning("Não foi possível atualizar o status do pedido {NumeroPedido}.", numeroPedido);
+                // Atualizar status se já existir
+                var sucesso = await _pedidoRepository.AtualizarStatusAsync(pedidoId, StatusPedido.Aceito, null, null);
+                if (sucesso)
+                {
+                    _logger.LogInformation("Status do pedido {NumeroPedido} atualizado para Aceito.", numeroPedido);
+                }
+                else
+                {
+                    _logger.LogWarning("Não foi possível atualizar o status do pedido {NumeroPedido}.", numeroPedido);
+                }
             }
         }
         else
         {
             _logger.LogWarning("PedidoId não informado na mensagem recebida.");
         }
-        // Aqui você pode implementar lógica específica da cozinha
-        // Por exemplo, notificar cozinheiros, atualizar dashboard, etc.
     }
 
     private async Task ProcessarPedidoConfirmado(JsonElement messageData)
@@ -145,8 +191,30 @@ public class PedidoMessageConsumer : BackgroundService
 
         _logger.LogInformation("Pedido confirmado e pronto para preparo: {NumeroPedido}", numeroPedido);
 
-        // Aqui você pode implementar lógica para iniciar o preparo
-        // Por exemplo, adicionar à fila de preparo, notificar cozinheiros, etc.
+        if (!string.IsNullOrEmpty(pedidoId))
+        {
+            var pedidoExistente = await _pedidoRepository.ObterPorIdAsync(pedidoId);
+            if (pedidoExistente != null)
+            {
+                var sucesso = await _pedidoRepository.AtualizarStatusAsync(pedidoId, StatusPedido.EmPreparo, null, null);
+                if (sucesso)
+                {
+                    _logger.LogInformation("Status do pedido {NumeroPedido} atualizado para EmPreparo.", numeroPedido);
+                }
+                else
+                {
+                    _logger.LogWarning("Não foi possível atualizar o status do pedido {NumeroPedido} para EmPreparo.", numeroPedido);
+                }
+            }
+            else
+            {
+                _logger.LogWarning("Pedido {NumeroPedido} não encontrado no banco da cozinha ao tentar confirmar.", numeroPedido);
+            }
+        }
+        else
+        {
+            _logger.LogWarning("PedidoId não informado na mensagem recebida para confirmação.");
+        }
     }
 
     private async Task ProcessarPedidoCancelado(JsonElement messageData)
@@ -157,8 +225,30 @@ public class PedidoMessageConsumer : BackgroundService
 
         _logger.LogInformation("Pedido cancelado: {NumeroPedido} - Motivo: {Motivo}", numeroPedido, motivo);
 
-        // Aqui você pode implementar lógica para remover da fila de preparo
-        // Por exemplo, notificar cozinheiros sobre o cancelamento, etc.
+        if (!string.IsNullOrEmpty(pedidoId))
+        {
+            var pedidoExistente = await _pedidoRepository.ObterPorIdAsync(pedidoId);
+            if (pedidoExistente != null)
+            {
+                var sucesso = await _pedidoRepository.AtualizarStatusAsync(pedidoId, StatusPedido.Cancelado, null, null, motivo);
+                if (sucesso)
+                {
+                    _logger.LogInformation("Status do pedido {NumeroPedido} atualizado para Cancelado.", numeroPedido);
+                }
+                else
+                {
+                    _logger.LogWarning("Não foi possível atualizar o status do pedido {NumeroPedido} para Cancelado.", numeroPedido);
+                }
+            }
+            else
+            {
+                _logger.LogWarning("Pedido {NumeroPedido} não encontrado no banco da cozinha ao tentar cancelar.", numeroPedido);
+            }
+        }
+        else
+        {
+            _logger.LogWarning("PedidoId não informado na mensagem recebida para cancelamento.");
+        }
     }
 
     public override void Dispose()
@@ -167,4 +257,26 @@ public class PedidoMessageConsumer : BackgroundService
         _connection?.Dispose();
         base.Dispose();
     }
+} 
+
+// DTO auxiliar para desserializar o pedido do OrderService
+public class OrderServicePedidoDto
+{
+    public string Id { get; set; } = string.Empty;
+    public string NumeroPedido { get; set; } = string.Empty;
+    public DateTime DataCriacao { get; set; }
+    public List<OrderServiceItemPedidoDto> Itens { get; set; } = new();
+    public string ClienteNome { get; set; } = string.Empty;
+    public string ClienteTelefone { get; set; } = string.Empty;
+    public string EnderecoEntrega { get; set; } = string.Empty;
+    public decimal ValorTotal { get; set; }
+    public string? Observacoes { get; set; }
+}
+public class OrderServiceItemPedidoDto
+{
+    public string? ProdutoNome { get; set; }
+    public string? Nome { get; set; }
+    public int Quantidade { get; set; }
+    public decimal PrecoUnitario { get; set; }
+    public string? Observacoes { get; set; }
 } 

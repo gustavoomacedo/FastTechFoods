@@ -66,6 +66,9 @@ builder.Services.AddSingleton<PedidoRepository>();
 // Registrar serviços de mensageria
 builder.Services.AddHostedService<PedidoMessageConsumer>();
 
+// Adicionar suporte a HttpClientFactory
+builder.Services.AddHttpClient();
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>

@@ -12,7 +12,6 @@ public class MessageService : IDisposable
     private readonly IConnection _connection;
     private readonly IModel _channel;
     private readonly ILogger<MessageService> _logger;
-    private readonly string _queueName = "pedidos_queue";
     private readonly string _exchangeName = "fasttech_exchange";
 
     public MessageService(IOptions<OrderSettings> settings, ILogger<MessageService> logger)
@@ -32,12 +31,6 @@ public class MessageService : IDisposable
         
         // Declarar exchange
         _channel.ExchangeDeclare(_exchangeName, ExchangeType.Topic, durable: true);
-        
-        // Declarar fila
-        _channel.QueueDeclare(_queueName, durable: true, exclusive: false, autoDelete: false);
-        
-        // Binding da fila com exchange
-        _channel.QueueBind(_queueName, _exchangeName, "pedido.*");
         
         _logger.LogInformation("MessageService inicializado com sucesso");
     }
@@ -128,32 +121,6 @@ public class MessageService : IDisposable
         {
             _logger.LogError(ex, "Erro ao publicar cancelamento do pedido {PedidoId} na fila", pedido.Id);
         }
-    }
-
-    public void ConsumirMensagens(Action<string> processarMensagem)
-    {
-        var consumer = new EventingBasicConsumer(_channel);
-        
-        consumer.Received += (model, ea) =>
-        {
-            var body = ea.Body.ToArray();
-            var message = Encoding.UTF8.GetString(body);
-            
-            try
-            {
-                processarMensagem(message);
-                _channel.BasicAck(ea.DeliveryTag, false);
-                _logger.LogInformation("Mensagem processada com sucesso: {RoutingKey}", ea.RoutingKey);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao processar mensagem: {Message}", message);
-                _channel.BasicNack(ea.DeliveryTag, false, true);
-            }
-        };
-
-        _channel.BasicConsume(queue: _queueName, autoAck: false, consumer: consumer);
-        _logger.LogInformation("Consumidor de mensagens iniciado");
     }
 
     public void Dispose()
