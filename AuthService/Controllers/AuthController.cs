@@ -8,6 +8,7 @@ using System.Text;
 using AuthService.Models;
 using AuthService.Repositories;
 using Microsoft.Extensions.Options;
+using AuthService.Services;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -16,12 +17,14 @@ public class AuthController : ControllerBase
     private readonly FuncionarioRepository _funcionarioRepo;
     private readonly ClienteRepository _clienteRepo;
     private readonly AuthSettings _authSettings;
+    private readonly ClienteEventPublisher _clienteEventPublisher;
 
-    public AuthController(FuncionarioRepository funcionarioRepo, ClienteRepository clienteRepo, IOptions<AuthSettings> authSettings)
+    public AuthController(FuncionarioRepository funcionarioRepo, ClienteRepository clienteRepo, IOptions<AuthSettings> authSettings, ClienteEventPublisher clienteEventPublisher)
     {
         _funcionarioRepo = funcionarioRepo;
         _clienteRepo = clienteRepo;
         _authSettings = authSettings.Value;
+        _clienteEventPublisher = clienteEventPublisher;
     }
 
     // Cadastro de funcionário (restrito a gerente)
@@ -109,6 +112,7 @@ public class AuthController : ControllerBase
         };
 
         await _clienteRepo.CriarAsync(cliente);
+        _clienteEventPublisher.PublicarClienteCriado(cliente);
         return Ok(new { message = "Cliente cadastrado com sucesso" });
     }
 

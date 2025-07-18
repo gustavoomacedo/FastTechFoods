@@ -77,6 +77,7 @@ builder.Services.AddSingleton<ClienteRepository>();
 
 // Registrar serviços
 builder.Services.AddSingleton<MessageService>();
+builder.Services.AddHostedService<OrderService.Services.ClienteMessageConsumer>();
 
 builder.Services.AddCors(options =>
 {

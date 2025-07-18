@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using AuthService.Repositories;
 using AuthService.Models;
+using AuthService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,6 +63,7 @@ builder.Services.AddAuthentication(options =>
 // Registrar repositórios
 builder.Services.AddSingleton<FuncionarioRepository>();
 builder.Services.AddSingleton<ClienteRepository>();
+builder.Services.AddSingleton<ClienteEventPublisher>();
 
 builder.Services.AddCors(options =>
 {

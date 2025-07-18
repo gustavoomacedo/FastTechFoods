@@ -52,6 +52,13 @@ public class ClienteRepository
         return cliente;
     }
 
+    public async Task CriarOuAtualizarAsync(Cliente cliente)
+    {
+        var filter = Builders<Cliente>.Filter.Eq(c => c.Id, cliente.Id);
+        var options = new ReplaceOptions { IsUpsert = true };
+        await _clientes.ReplaceOneAsync(filter, cliente, options);
+    }
+
     public async Task<bool> AtualizarAsync(string id, ClienteUpdateRequest request)
     {
         var update = Builders<Cliente>.Update

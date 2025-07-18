@@ -11,7 +11,7 @@ public class OrderSettings
     // RabbitMQ Configuration
     public string RabbitMQHost { get; set; } = "localhost";
     public int RabbitMQPort { get; set; } = 5672;
-    public string RabbitMQUser { get; set; } = "admin";
-    public string RabbitMQPassword { get; set; } = "password123";
+    public string RabbitMQUser { get; set; } = "guest";
+    public string RabbitMQPassword { get; set; } = "guest";
     public string RabbitMQVirtualHost { get; set; } = "/";
 } 
