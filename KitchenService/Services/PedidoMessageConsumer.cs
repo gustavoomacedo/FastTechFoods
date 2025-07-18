@@ -117,6 +117,23 @@ public class PedidoMessageConsumer : BackgroundService
 
         _logger.LogInformation("Novo pedido recebido na cozinha: {NumeroPedido} - R$ {ValorTotal}", numeroPedido, valorTotal);
 
+        // Atualizar status do pedido para Aceito no banco de dados
+        if (!string.IsNullOrEmpty(pedidoId))
+        {
+            var sucesso = await _pedidoRepository.AtualizarStatusAsync(pedidoId, StatusPedido.Aceito, null, null);
+            if (sucesso)
+            {
+                _logger.LogInformation("Status do pedido {NumeroPedido} atualizado para Aceito.", numeroPedido);
+            }
+            else
+            {
+                _logger.LogWarning("Não foi possível atualizar o status do pedido {NumeroPedido}.", numeroPedido);
+            }
+        }
+        else
+        {
+            _logger.LogWarning("PedidoId não informado na mensagem recebida.");
+        }
         // Aqui você pode implementar lógica específica da cozinha
         // Por exemplo, notificar cozinheiros, atualizar dashboard, etc.
     }

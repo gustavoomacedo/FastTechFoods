@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: orderservice
-        image: gustavoomacedo/orderservice:latest
+        image: jpdevs/orderservice:latest
         ports:
         - containerPort: 80
         env:

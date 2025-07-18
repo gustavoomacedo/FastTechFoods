@@ -17,9 +17,9 @@ spec:
     spec:
       containers:
       - name: menuservice
-        image: gustavoomacedo/menuservice:latest
+        image: jpdevs/menuservice:latest
         ports:
-        - containerPort: 8080
+        - containerPort: 80
         env:
         - name: ASPNETCORE_ENVIRONMENT
           value: "Production"
@@ -40,13 +40,13 @@ spec:
         livenessProbe:
           httpGet:
             path: /health
-            port: 8080
+            port: 80
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /health
-            port: 8080
+            port: 80
           initialDelaySeconds: 5
           periodSeconds: 5
 ---
@@ -61,7 +61,7 @@ spec:
   ports:
   - protocol: TCP
     port: 80
-    targetPort: 8080
+    targetPort: 80
     nodePort: 30003
   type: NodePort
  

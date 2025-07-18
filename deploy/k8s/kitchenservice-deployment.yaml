@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: kitchenservice
-        image: gustavoomacedo/kitchenservice:latest
+        image: jpdevs/kitchenservice:latest
         ports:
         - containerPort: 80
         env:

@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: authservice
-        image: gustavoomacedo/authservice:latest
+        image: jpdevs/authservice:latest
         ports:
         - containerPort: 80
         env:
