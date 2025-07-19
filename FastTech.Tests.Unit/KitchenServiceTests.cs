@@ -123,11 +123,12 @@ namespace FastTech.Tests.Unit
         public void Deve_Ordenar_Pedidos_Por_Prioridade()
         {
             // Arrange
+            var agora = DateTime.Now;
             var pedidos = new List<PedidoTeste>
             {
-                new PedidoTeste { Numero = "PED001", Prioridade = 2, DataCriacao = DateTime.Now.AddMinutes(-30) },
-                new PedidoTeste { Numero = "PED002", Prioridade = 1, DataCriacao = DateTime.Now.AddMinutes(-10) },
-                new PedidoTeste { Numero = "PED003", Prioridade = 1, DataCriacao = DateTime.Now.AddMinutes(-20) }
+                new PedidoTeste { Numero = "PED001", Prioridade = 2, DataCriacao = agora.AddMinutes(-30) },
+                new PedidoTeste { Numero = "PED002", Prioridade = 1, DataCriacao = agora.AddMinutes(-10) },
+                new PedidoTeste { Numero = "PED003", Prioridade = 1, DataCriacao = agora.AddMinutes(-20) }
             };
 
             // Act
@@ -187,7 +188,7 @@ namespace FastTech.Tests.Unit
         {
             return pedidos
                 .OrderBy(p => p.Prioridade)
-                .ThenBy(p => p.DataCriacao)
+                .ThenByDescending(p => p.DataCriacao) // Ordenar por data mais recente primeiro
                 .ToList();
         }
 
