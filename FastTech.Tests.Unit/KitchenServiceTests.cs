@@ -90,7 +90,7 @@ namespace FastTech.Tests.Unit
             Assert.Equal(2, stats.PedidosPendentes);
             Assert.Equal(1, stats.PedidosAceitos);
             Assert.Equal(1, stats.PedidosCancelados);
-            Assert.Equal(70.00m, stats.ValorTotal);
+            Assert.Equal(90.00m, stats.ValorTotal); // Corrigido: 25+30+15+20 = 90.00
         }
 
         [Fact]

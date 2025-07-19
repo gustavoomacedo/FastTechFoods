@@ -22,7 +22,7 @@ namespace FastTech.Tests.Unit
             var total = CalcularValorTotal(itens, taxaEntrega, desconto);
 
             // Assert
-            Assert.Equal(43.20m, total);
+            Assert.Equal(43.30m, total); // Corrigido: (15.90*2 + 8.50*1) + 5.00 - 2.00 = 43.30
         }
 
         [Fact]
