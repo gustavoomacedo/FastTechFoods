@@ -1,0 +1,36 @@
+name: Build and Test FastTechFoods
+
+on:
+  push:
+    branches: [ main, develop, master ]
+  pull_request:
+    branches: [ main, develop, master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+        
+    - name: Restore dependencies
+      run: dotnet restore FastTechFoods.sln
+      
+    - name: Build solution
+      run: dotnet build FastTechFoods.sln --configuration Release --no-restore
+      
+    - name: Run tests
+      run: dotnet test FastTechFoods.sln --configuration Release --no-build --verbosity normal
+      
+    - name: Build individual services
+      run: |
+        dotnet build AuthService/AuthService.csproj --configuration Release --no-restore
+        dotnet build MenuService/MenuService.csproj --configuration Release --no-restore
+        dotnet build OrderService/OrderService.csproj --configuration Release --no-restore
+        dotnet build KitchenService/KitchenService.csproj --configuration Release --no-restore 
