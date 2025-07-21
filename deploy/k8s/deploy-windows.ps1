@@ -56,12 +56,33 @@ kubectl apply -f menuservice-deployment.yaml
 Write-Host "Deployando OrderService..." -ForegroundColor Yellow
 kubectl apply -f orderservice-deployment.yaml
 
+# Deploy Prometheus
+Write-Host "Deployando Prometheus..." -ForegroundColor Yellow
+kubectl apply -f prometheus-deployment.yaml
+
+# Deploy Grafana
+Write-Host "Deployando Grafana..." -ForegroundColor Yellow
+kubectl apply -f grafana-deployment.yaml
+
+# Deploy Zabbix
+Write-Host "Deployando Zabbix..." -ForegroundColor Yellow
+kubectl apply -f zabbix-deployment.yaml
+
+# Deploy Zabbix Agents
+Write-Host "Deployando Zabbix Agents..." -ForegroundColor Yellow
+kubectl apply -f zabbix-agents.yaml
+
 # Aguardar todos os pods estarem prontos
 Write-Host "Aguardando todos os serviços estarem prontos..." -ForegroundColor Yellow
 kubectl wait --for=condition=ready pod -l app=authservice -n fasttech-foods --timeout=300s
 kubectl wait --for=condition=ready pod -l app=kitchenservice -n fasttech-foods --timeout=300s
 kubectl wait --for=condition=ready pod -l app=menuservice -n fasttech-foods --timeout=300s
 kubectl wait --for=condition=ready pod -l app=orderservice -n fasttech-foods --timeout=300s
+
+# Aguardar Zabbix estar pronto
+Write-Host "Aguardando Zabbix estar pronto..." -ForegroundColor Yellow
+kubectl wait --for=condition=ready pod -l app=zabbix-server -n fasttech-foods --timeout=300s
+kubectl wait --for=condition=ready pod -l app=zabbix-web -n fasttech-foods --timeout=300s
 
 # Mostrar status dos pods
 Write-Host "`n=== Status dos Pods ===" -ForegroundColor Green
@@ -77,5 +98,8 @@ Write-Host "KitchenService: http://localhost:30002" -ForegroundColor White
 Write-Host "MenuService: http://localhost:30003" -ForegroundColor White
 Write-Host "OrderService: http://localhost:30004" -ForegroundColor White
 Write-Host "RabbitMQ Management: http://localhost:31672 (usuário: guest, senha: guest)" -ForegroundColor White
+Write-Host "Prometheus: http://localhost:30900" -ForegroundColor White
+Write-Host "Grafana: http://localhost:30300 (usuário: admin, senha: admin)" -ForegroundColor White
+Write-Host "Zabbix Web: http://localhost:30800 (usuário: Admin, senha: zabbix)" -ForegroundColor White
 
 Write-Host "`n=== Deployment Concluído! ===" -ForegroundColor Green 

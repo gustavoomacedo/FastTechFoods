@@ -477,10 +477,13 @@ docker-compose logs -f orderservice
 
 ### 7.2 Métricas
 
-- **Prometheus**: http://localhost:9090
-- **Grafana**: http://localhost:3000
+- **Prometheus**: http://localhost:30900
+- **Grafana**: http://localhost:30300
   - Usuário: admin
-  - Senha: admin123
+  - Senha: admin
+- **Zabbix Web**: http://localhost:30800
+  - Usuário: Admin
+  - Senha: zabbix
 
 ### 7.3 RabbitMQ Management
 

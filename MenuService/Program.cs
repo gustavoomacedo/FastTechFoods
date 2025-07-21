@@ -3,6 +3,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using MenuService.Models;
 using MenuService.Repositories;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -100,6 +101,20 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
+var counter = Metrics.CreateCounter("menuservicemetric", "Counts MenuService requests to the WebApiMetrics API endpoints",
+    new CounterConfiguration
+    {
+        LabelNames = new[] { "method", "endpoint" }
+    });
+
+app.Use((context, next) =>
+{
+    counter.WithLabels(context.Request.Method, context.Request.Path).Inc();
+    return next();
+});
+app.UseMetricServer();
+app.UseHttpMetrics();
+
 app.MapGet("/health", () =>
 {
     return "Healthy";
@@ -109,11 +124,6 @@ app.MapGet("/health", () =>
 app.MapControllers();
 
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
 
 // Classe AuthSettings para compatibilidade com JWT
 public class AuthSettings

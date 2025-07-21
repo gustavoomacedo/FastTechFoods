@@ -4,6 +4,7 @@ using System.Text;
 using OrderService.Models;
 using OrderService.Repositories;
 using OrderService.Services;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -113,6 +114,21 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+
+var counter = Metrics.CreateCounter("orderservicemetric", "Counts OrderService requests to the WebApiMetrics API endpoints",
+    new CounterConfiguration
+    {
+        LabelNames = new[] { "method", "endpoint" }
+    });
+
+app.Use((context, next) =>
+{
+    counter.WithLabels(context.Request.Method, context.Request.Path).Inc();
+    return next();
+});
+app.UseMetricServer();
+app.UseHttpMetrics();
 
 app.MapGet("/health", () =>
 {

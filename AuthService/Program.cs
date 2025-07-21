@@ -4,6 +4,7 @@ using System.Text;
 using AuthService.Repositories;
 using AuthService.Models;
 using AuthService.Services;
+using Prometheus;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -99,24 +100,19 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+var counter = Metrics.CreateCounter("authservicemetric", "Counts AuthService requests to the WebApiMetrics API endpoints",
+    new CounterConfiguration
+    {
+        LabelNames = new[] { "method", "endpoint" }
+    });
 
-app.MapGet("/weatherforecast", () =>
+app.Use((context, next) =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
+    counter.WithLabels(context.Request.Method, context.Request.Path).Inc();
+    return next();
+});
+app.UseMetricServer();
+app.UseHttpMetrics();
 
 app.MapGet("/health", () =>
 {

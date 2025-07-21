@@ -1,0 +1,167 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: fasttech-foods
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mariadb
+  namespace: fasttech-foods
+spec:
+  type: NodePort
+  ports:
+  - port: 3306
+    targetPort: 3306
+    nodePort: 30306
+  selector:
+    app: mariadb
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mariadb
+  namespace: fasttech-foods
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mariadb
+  template:
+    metadata:
+      labels:
+        app: mariadb
+    spec:
+      containers:
+      - name: mariadb
+        image: mariadb:10.5
+        env:
+        - name: MYSQL_DATABASE
+          value: "zabbix"
+        - name: MYSQL_USER
+          value: "zabbix"
+        - name: MYSQL_PASSWORD
+          value: "zabbix_pwd"
+        - name: MYSQL_ROOT_PASSWORD
+          value: "root_pwd"
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: mariadb-storage
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mariadb-storage
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zabbix-server
+  namespace: fasttech-foods
+spec:
+  type: NodePort
+  ports:
+  - port: 10051
+    targetPort: 10051
+    nodePort: 31051
+    name: zabbix-server
+  - port: 10052
+    targetPort: 10052
+    nodePort: 31052
+    name: zabbix-agent
+  selector:
+    app: zabbix-server
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zabbix-server
+  namespace: fasttech-foods
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zabbix-server
+  template:
+    metadata:
+      labels:
+        app: zabbix-server
+    spec:
+      containers:
+      - name: zabbix-server
+        image: zabbix/zabbix-server-mysql:latest
+        ports:
+        - containerPort: 10051
+        - containerPort: 10052
+        env:
+        - name: DB_SERVER_HOST
+          value: "mariadb"
+        - name: DB_SERVER_PORT
+          value: "3306"
+        - name: MYSQL_DATABASE
+          value: "zabbix"
+        - name: MYSQL_USER
+          value: "zabbix"
+        - name: MYSQL_PASSWORD
+          value: "zabbix_pwd"
+        - name: MYSQL_ROOT_PASSWORD
+          value: "root_pwd"
+        - name: PHP_TZ
+          value: "America/Sao_Paulo"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: zabbix-web
+  namespace: fasttech-foods
+spec:
+  type: NodePort
+  ports:
+  - port: 80
+    targetPort: 8080
+    nodePort: 30800
+    name: http
+  selector:
+    app: zabbix-web
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: zabbix-web
+  namespace: fasttech-foods
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: zabbix-web
+  template:
+    metadata:
+      labels:
+        app: zabbix-web
+    spec:
+      containers:
+      - name: zabbix-web
+        image: zabbix/zabbix-web-nginx-mysql:latest
+        ports:
+        - containerPort: 80
+        env:
+        - name: DB_SERVER_HOST
+          value: "mariadb"
+        - name: DB_SERVER_PORT
+          value: "3306"
+        - name: MYSQL_DATABASE
+          value: "zabbix"
+        - name: MYSQL_USER
+          value: "zabbix"
+        - name: MYSQL_PASSWORD
+          value: "zabbix_pwd"
+        - name: MYSQL_ROOT_PASSWORD
+          value: "root_pwd"
+        - name: PHP_TZ
+          value: "America/Sao_Paulo"
+        - name: ZBX_SERVER_HOST
+          value: "zabbix-server"
+        - name: ZBX_SERVER_PORT
+          value: "10051"
+        - name: ZBX_SERVER_NAME
+          value: "Zabbix server" 
