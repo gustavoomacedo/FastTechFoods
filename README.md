@@ -1,32 +1,32 @@
-# FastTech Foods MVP - Guia Completo de Execução
+# FastTech Foods MVP - Complete Execution Guide
 
-## 📋 Índice
+## 📋 Table of Contents
 
-1. [Visão Geral](#1-visão-geral)
-2. [Resumo dos Projetos](#2-resumo-dos-projetos)
-3. [Pré-requisitos](#3-pré-requisitos)
-4. [Instalação e Configuração](#4-instalação-e-configuração)
-5. [Execução dos Serviços](#5-execução-dos-serviços)
-6. [Testes e Validação](#6-testes-e-validação)
-7. [Monitoramento](#7-monitoramento)
+1. [Overview](#1-overview)
+2. [Project Summary](#2-project-summary)
+3. [Prerequisites](#3-prerequisites)
+4. [Installation and Configuration](#4-installation-and-configuration)
+5. [Service Execution](#5-service-execution)
+6. [Testing and Validation](#6-testing-and-validation)
+7. [Monitoring](#7-monitoring)
 8. [Troubleshooting](#8-troubleshooting)
 
 ---
 
-## 1. Visão Geral
+## 1. Overview
 
-O **FastTech Foods MVP** é um sistema completo de gestão de restaurante baseado em microserviços, desenvolvido em .NET 8.0 com arquitetura moderna e escalável.
+The **FastTech Foods MVP** is a complete restaurant management system based on microservices, developed in .NET 8.0 with modern and scalable architecture.
 
-### 🏗️ Arquitetura
+### 🏗️ Architecture
 
 ```
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
 │ AuthService │    │MenuService  │    │KitchenService│    │OrderService │
 │    :7001    │    │   :7002     │    │    :7003     │    │   :7004     │
 │             │    │             │    │             │    │             │
-│ - Login     │    │ - Produtos  │    │ - Pedidos   │    │ - Pedidos   │
-│ - Registro  │    │ - Menu      │    │ - Status    │    │ - Clientes  │
-│ - JWT       │    │ - Busca     │    │ - Ações     │    │ - Integração│
+│ - Login     │    │ - Products  │    │ - Orders    │    │ - Orders    │
+│ - Register  │    │ - Menu      │    │ - Status    │    │ - Customers │
+│ - JWT       │    │ - Search    │    │ - Actions   │    │ - Integration│
 └─────────────┘    └─────────────┘    └─────────────┘    └─────────────┘
        │                   │                   │                   │
        └───────────────────┼───────────────────┼───────────────────┘
@@ -35,155 +35,155 @@ O **FastTech Foods MVP** é um sistema completo de gestão de restaurante basead
                     │  MongoDB    │    │  RabbitMQ   │
                     │   :27017    │    │   :5672     │
                     │             │    │             │
-                    │ - Usuários  │    │ - Mensagens │
-                    │ - Produtos  │    │ - Filas     │
-                    │ - Pedidos   │    │ - Exchange  │
+                    │ - Users     │    │ - Messages  │
+                    │ - Products  │    │ - Queues    │
+                    │ - Orders    │    │ - Exchange  │
                     └─────────────┘    └─────────────┘
 ```
 
 ---
 
-## 2. Resumo dos Projetos
+## 2. Project Summary
 
-### 🔐 AuthService (Porta 7001)
+### 🔐 AuthService (Port 7001)
 
-**Propósito**: Autenticação e autorização centralizada
+**Purpose**: Centralized authentication and authorization
 
-**Funcionalidades**:
-- ✅ Login/registro de funcionários
-- ✅ Login/registro de clientes  
-- ✅ Geração de tokens JWT
-- ✅ Validação de credenciais
-- ✅ Hash seguro de senhas
+**Features**:
+- ✅ Employee login/registration
+- ✅ Customer login/registration  
+- ✅ JWT token generation
+- ✅ Credential validation
+- ✅ Secure password hashing
 
-**Tecnologias**: .NET 8.0, MongoDB, JWT, Swagger
+**Technologies**: .NET 8.0, MongoDB, JWT, Swagger
 
-**Endpoints Principais**:
+**Main Endpoints**:
 ```bash
-POST /api/auth/funcionario/login     # Login funcionário
-POST /api/auth/funcionario/registro  # Registro funcionário
-POST /api/auth/cliente/login         # Login cliente
-POST /api/auth/cliente/registro      # Registro cliente
-GET  /api/auth/me                    # Info do usuário
+POST /api/auth/funcionario/login     # Employee login
+POST /api/auth/funcionario/registro  # Employee registration
+POST /api/auth/cliente/login         # Customer login
+POST /api/auth/cliente/registro      # Customer registration
+GET  /api/auth/me                    # User info
 ```
 
-### 🍽️ MenuService (Porta 7002)
+### 🍽️ MenuService (Port 7002)
 
-**Propósito**: Gestão de produtos e menu
+**Purpose**: Product and menu management
 
-**Funcionalidades**:
-- ✅ CRUD completo de produtos
-- ✅ Busca e filtros avançados
-- ✅ Paginação de resultados
-- ✅ Gestão de categorias
-- ✅ Controle de disponibilidade
+**Features**:
+- ✅ Complete product CRUD
+- ✅ Advanced search and filters
+- ✅ Result pagination
+- ✅ Category management
+- ✅ Availability control
 
-**Tecnologias**: .NET 8.0, MongoDB, JWT, Swagger
+**Technologies**: .NET 8.0, MongoDB, JWT, Swagger
 
-**Endpoints Principais**:
+**Main Endpoints**:
 ```bash
-GET    /api/menu/produtos           # Listar produtos
-GET    /api/menu/produtos/{id}      # Buscar produto
-POST   /api/menu/produtos           # Criar produto
-PUT    /api/menu/produtos/{id}      # Atualizar produto
-DELETE /api/menu/produtos/{id}      # Deletar produto
-GET    /api/menu/buscar             # Busca com filtros
+GET    /api/menu/produtos           # List products
+GET    /api/menu/produtos/{id}      # Get product
+POST   /api/menu/produtos           # Create product
+PUT    /api/menu/produtos/{id}      # Update product
+DELETE /api/menu/produtos/{id}      # Delete product
+GET    /api/menu/buscar             # Search with filters
 ```
 
-### 👨‍🍳 KitchenService (Porta 7003)
+### 👨‍🍳 KitchenService (Port 7003)
 
-**Propósito**: Gestão de pedidos na cozinha
+**Purpose**: Kitchen order management
 
-**Funcionalidades**:
-- ✅ Visualização de pedidos pendentes
-- ✅ Aceitar/rejeitar pedidos
-- ✅ Atualizar status
-- ✅ Histórico de ações
-- ✅ Estatísticas da cozinha
-- ✅ Consumo de mensagens RabbitMQ
+**Features**:
+- ✅ View pending orders
+- ✅ Accept/reject orders
+- ✅ Update status
+- ✅ Action history
+- ✅ Kitchen statistics
+- ✅ RabbitMQ message consumption
 
-**Tecnologias**: .NET 8.0, MongoDB, JWT, RabbitMQ, Swagger
+**Technologies**: .NET 8.0, MongoDB, JWT, RabbitMQ, Swagger
 
-**Endpoints Principais**:
+**Main Endpoints**:
 ```bash
-GET  /api/kitchen/pedidos           # Listar pedidos
-GET  /api/kitchen/pedidos/pendentes # Pedidos pendentes
-PUT  /api/kitchen/pedidos/{id}/aceitar  # Aceitar pedido
-PUT  /api/kitchen/pedidos/{id}/rejeitar # Rejeitar pedido
-PUT  /api/kitchen/pedidos/{id}/status  # Atualizar status
-GET  /api/kitchen/estatisticas      # Estatísticas
+GET  /api/kitchen/pedidos           # List orders
+GET  /api/kitchen/pedidos/pendentes # Pending orders
+PUT  /api/kitchen/pedidos/{id}/aceitar  # Accept order
+PUT  /api/kitchen/pedidos/{id}/rejeitar # Reject order
+PUT  /api/kitchen/pedidos/{id}/status  # Update status
+GET  /api/kitchen/estatisticas      # Statistics
 ```
 
-### 📦 OrderService (Porta 7004)
+### 📦 OrderService (Port 7004)
 
-**Propósito**: Criação e gestão de pedidos
+**Purpose**: Order creation and management
 
-**Funcionalidades**:
-- ✅ Criação de pedidos por clientes
-- ✅ Cancelamento de pedidos
-- ✅ Integração com MenuService
-- ✅ Validação de produtos
-- ✅ Publicação de mensagens RabbitMQ
-- ✅ Gestão de clientes
+**Features**:
+- ✅ Order creation by customers
+- ✅ Order cancellation
+- ✅ MenuService integration
+- ✅ Product validation
+- ✅ RabbitMQ message publishing
+- ✅ Customer management
 
-**Tecnologias**: .NET 8.0, MongoDB, JWT, RabbitMQ, HttpClient, Swagger
+**Technologies**: .NET 8.0, MongoDB, JWT, RabbitMQ, HttpClient, Swagger
 
-**Endpoints Principais**:
+**Main Endpoints**:
 ```bash
-POST /api/orders/pedidos            # Criar pedido
-GET  /api/orders/pedidos/{id}       # Buscar pedido
-POST /api/orders/pedidos/{id}/cancelar # Cancelar pedido
-POST /api/orders/clientes           # Cadastrar cliente
-GET  /api/orders/produtos           # Produtos disponíveis
+POST /api/orders/pedidos            # Create order
+GET  /api/orders/pedidos/{id}       # Get order
+POST /api/orders/pedidos/{id}/cancelar # Cancel order
+POST /api/orders/clientes           # Register customer
+GET  /api/orders/produtos           # Available products
 ```
 
 ---
 
-## 3. Pré-requisitos
+## 3. Prerequisites
 
-### 🛠️ Software Necessário
+### 🛠️ Required Software
 
 - **.NET 8.0 SDK**: [Download](https://dotnet.microsoft.com/download/dotnet/8.0)
 - **MongoDB 7.0+**: [Download](https://www.mongodb.com/try/download/community)
-- **RabbitMQ 3.12+** (opcional): [Download](https://www.rabbitmq.com/download.html)
-- **Visual Studio 2022** ou **VS Code**
+- **RabbitMQ 3.12+** (optional): [Download](https://www.rabbitmq.com/download.html)
+- **Visual Studio 2022** or **VS Code**
 - **Git**: [Download](https://git-scm.com/)
 
-### 🔧 Verificação de Instalação
+### 🔧 Installation Verification
 
 ```bash
-# Verificar .NET
+# Verify .NET
 dotnet --version
 
-# Verificar MongoDB
+# Verify MongoDB
 mongosh --version
 
-# Verificar Git
+# Verify Git
 git --version
 ```
 
 ---
 
-## 4. Instalação e Configuração
+## 4. Installation and Configuration
 
-### 4.1 Clone do Repositório
+### 4.1 Repository Clone
 
 ```bash
 git clone <repository-url>
 cd fasttech-foods-mvp
 ```
 
-### 4.2 Configuração do MongoDB
+### 4.2 MongoDB Configuration
 
 #### Windows
 ```bash
-# Instalar MongoDB (usando chocolatey)
+# Install MongoDB (using chocolatey)
 choco install mongodb
 
-# Iniciar serviço
+# Start service
 net start MongoDB
 
-# Verificar status
+# Check status
 sc query MongoDB
 ```
 
@@ -193,34 +193,34 @@ sc query MongoDB
 sudo apt update
 sudo apt install mongodb
 
-# Iniciar serviço
+# Start service
 sudo systemctl start mongod
 sudo systemctl enable mongod
 
-# Verificar status
+# Check status
 sudo systemctl status mongod
 ```
 
-#### Verificar Conexão
+#### Verify Connection
 ```bash
 mongosh
-# Deve conectar sem erros
+# Should connect without errors
 ```
 
-### 4.3 Configuração do RabbitMQ (Opcional)
+### 4.3 RabbitMQ Configuration (Optional)
 
 #### Windows
 ```bash
-# Instalar RabbitMQ
+# Install RabbitMQ
 choco install rabbitmq
 
-# Iniciar serviço
+# Start service
 net start RabbitMQ
 
-# Acessar interface web
+# Access web interface
 # http://localhost:15672
-# Usuário: admin
-# Senha: password123
+# User: admin
+# Password: password123
 ```
 
 #### Linux/Mac
@@ -228,11 +228,11 @@ net start RabbitMQ
 # Ubuntu/Debian
 sudo apt install rabbitmq-server
 
-# Iniciar serviço
+# Start service
 sudo systemctl start rabbitmq-server
 sudo systemctl enable rabbitmq-server
 
-# Configurar usuário
+# Configure user
 sudo rabbitmqctl add_user admin password123
 sudo rabbitmqctl set_user_tags admin administrator
 sudo rabbitmqctl set_permissions -p / admin ".*" ".*" ".*"
@@ -240,16 +240,16 @@ sudo rabbitmqctl set_permissions -p / admin ".*" ".*" ".*"
 
 ---
 
-## 5. Execução dos Serviços
+## 5. Service Execution
 
-### 5.1 Execução Individual
+### 5.1 Individual Execution
 
 #### 🔐 AuthService
 ```bash
 cd AuthService
 dotnet restore
 dotnet run
-# Acesse: https://localhost:7001
+# Access: https://localhost:7001
 # Swagger: https://localhost:7001/swagger
 ```
 
@@ -258,7 +258,7 @@ dotnet run
 cd MenuService
 dotnet restore
 dotnet run
-# Acesse: https://localhost:7002
+# Access: https://localhost:7002
 # Swagger: https://localhost:7002/swagger
 ```
 
@@ -267,7 +267,7 @@ dotnet run
 cd KitchenService
 dotnet restore
 dotnet run
-# Acesse: https://localhost:7003
+# Access: https://localhost:7003
 # Swagger: https://localhost:7003/swagger
 ```
 
@@ -276,60 +276,60 @@ dotnet run
 cd OrderService
 dotnet restore
 dotnet run
-# Acesse: https://localhost:7004
+# Access: https://localhost:7004
 # Swagger: https://localhost:7004/swagger
 ```
 
-### 5.2 Execução com Docker Compose
+### 5.2 Docker Compose Execution
 
 ```bash
 cd deploy/docker
 
-# Executar todos os serviços
+# Run all services
 docker-compose up -d
 
-# Verificar status
+# Check status
 docker-compose ps
 
-# Ver logs
+# View logs
 docker-compose logs -f
 
-# Parar serviços
+# Stop services
 docker-compose down
 ```
 
-### 5.3 Execução com Kubernetes
+### 5.3 Kubernetes Execution
 
 ```bash
 cd deploy/k8s
 
-# Aplicar configurações
+# Apply configurations
 kubectl apply -f authservice-deployment.yaml
 kubectl apply -f menuservice-deployment.yaml
 kubectl apply -f kitchenservice-deployment.yaml
 kubectl apply -f orderservice-deployment.yaml
 
-# Verificar status
+# Check status
 kubectl get pods
 kubectl get services
 ```
 
 ---
 
-## 6. Testes e Validação
+## 6. Testing and Validation
 
 ### 6.1 Swagger/OpenAPI
 
-Cada serviço possui documentação interativa:
+Each service has interactive documentation:
 
 - **AuthService**: https://localhost:7001/swagger
 - **MenuService**: https://localhost:7002/swagger  
 - **KitchenService**: https://localhost:7003/swagger
 - **OrderService**: https://localhost:7004/swagger
 
-### 6.2 Dados de Teste
+### 6.2 Test Data
 
-#### Criar Dados de Teste
+#### Create Test Data
 ```bash
 # AuthService
 curl -X POST https://localhost:7001/api/test/criar-dados-teste
@@ -344,7 +344,7 @@ curl -X POST https://localhost:7003/api/test/criar-dados-teste
 curl -X POST https://localhost:7004/api/test/criar-dados-teste
 ```
 
-#### Limpar Dados de Teste
+#### Clear Test Data
 ```bash
 # AuthService
 curl -X DELETE https://localhost:7001/api/test/limpar-dados-teste
@@ -359,9 +359,9 @@ curl -X DELETE https://localhost:7003/api/test/limpar-dados-teste
 curl -X DELETE https://localhost:7004/api/test/limpar-dados-teste
 ```
 
-### 6.3 Fluxo de Teste Completo
+### 6.3 Complete Test Flow
 
-#### 1. Registrar Funcionário
+#### 1. Register Employee
 ```bash
 curl -X POST https://localhost:7001/api/auth/funcionario/registro \
   -H "Content-Type: application/json" \
@@ -373,7 +373,7 @@ curl -X POST https://localhost:7001/api/auth/funcionario/registro \
   }'
 ```
 
-#### 2. Login do Funcionário
+#### 2. Employee Login
 ```bash
 curl -X POST https://localhost:7001/api/auth/funcionario/login \
   -H "Content-Type: application/json" \
@@ -381,10 +381,10 @@ curl -X POST https://localhost:7001/api/auth/funcionario/login \
     "email": "joao@fasttech.com",
     "senha": "123456"
   }'
-# Guarde o token retornado
+# Save the returned token
 ```
 
-#### 3. Criar Produto
+#### 3. Create Product
 ```bash
 curl -X POST https://localhost:7002/api/menu/produtos \
   -H "Content-Type: application/json" \
@@ -404,7 +404,7 @@ curl -X POST https://localhost:7002/api/menu/produtos \
       }'
 ```
 
-#### 4. Registrar Cliente
+#### 4. Register Customer
 ```bash
 curl -X POST https://localhost:7001/api/auth/cliente/registro \
   -H "Content-Type: application/json" \
@@ -421,7 +421,7 @@ curl -X POST https://localhost:7001/api/auth/cliente/registro \
   }'
 ```
 
-#### 5. Login do Cliente
+#### 5. Customer Login
 ```bash
 curl -X POST https://localhost:7001/api/auth/cliente/login \
   -H "Content-Type: application/json" \
@@ -429,10 +429,10 @@ curl -X POST https://localhost:7001/api/auth/cliente/login \
     "email": "maria@email.com",
     "senha": "123456"
   }'
-# Guarde o token e clienteId retornados
+# Save the returned token and clienteId
 ```
 
-#### 6. Criar Pedido
+#### 6. Create Order
 ```bash
 curl -X POST https://localhost:7004/api/orders/pedidos \
   -H "Content-Type: application/json" \
@@ -453,7 +453,7 @@ curl -X POST https://localhost:7004/api/orders/pedidos \
   }'
 ```
 
-#### 7. Aceitar Pedido na Cozinha
+#### 7. Accept Order in Kitchen
 ```bash
 curl -X PUT https://localhost:7003/api/kitchen/pedidos/{PEDIDO_ID}/aceitar \
   -H "Content-Type: application/json" \
@@ -468,80 +468,80 @@ curl -X PUT https://localhost:7003/api/kitchen/pedidos/{PEDIDO_ID}/aceitar \
 
 ---
 
-## 7. Monitoramento
+## 7. Monitoring
 
 ### 7.1 Logs
 
-Todos os serviços implementam logging estruturado:
+All services implement structured logging:
 
 ```bash
-# Ver logs em tempo real
+# View real-time logs
 docker-compose logs -f authservice
 docker-compose logs -f menuservice
 docker-compose logs -f kitchenservice
 docker-compose logs -f orderservice
 ```
 
-### 7.2 Métricas
+### 7.2 Metrics
 
 - **Prometheus**: http://localhost:30900
 - **Grafana**: http://localhost:30300
-  - Usuário: admin
-  - Senha: admin
+  - User: admin
+  - Password: admin
 - **Zabbix Web**: http://localhost:30800
-  - Usuário: Admin
-  - Senha: zabbix
+  - User: Admin
+  - Password: zabbix
 
 ### 7.3 RabbitMQ Management
 
-- **Interface Web**: http://localhost:15672
-- **Usuário**: admin
-- **Senha**: password123
+- **Web Interface**: http://localhost:15672
+- **User**: admin
+- **Password**: password123
 
 ---
 
 ## 8. Troubleshooting
 
-### 8.1 Problemas Comuns
+### 8.1 Common Issues
 
-#### ❌ Erro de Conexão com MongoDB
+#### ❌ MongoDB Connection Error
 ```bash
-# Verificar se MongoDB está rodando
+# Check if MongoDB is running
 net start MongoDB  # Windows
 sudo systemctl status mongod  # Linux
 
-# Verificar string de conexão
-# Deve ser: mongodb://localhost:27017
+# Check connection string
+# Should be: mongodb://localhost:27017
 ```
 
-#### ❌ Erro de Autenticação JWT
+#### ❌ JWT Authentication Error
 ```bash
-# Verificar se a chave secreta está configurada
-# Verificar se o token não expirou
-# Verificar se o issuer/audience estão corretos
+# Check if secret key is configured
+# Check if token hasn't expired
+# Check if issuer/audience are correct
 ```
 
-#### ❌ Erro de Conexão com RabbitMQ
+#### ❌ RabbitMQ Connection Error
 ```bash
-# Verificar se RabbitMQ está rodando
+# Check if RabbitMQ is running
 net start RabbitMQ  # Windows
 sudo systemctl status rabbitmq-server  # Linux
 
-# Verificar credenciais
-# Usuário: admin
-# Senha: password123
+# Check credentials
+# User: admin
+# Password: password123
 ```
 
-#### ❌ Erro de Integração entre Serviços
+#### ❌ Service Integration Error
 ```bash
-# Verificar se todos os serviços estão rodando
-# Verificar URLs dos serviços
-# Verificar logs de erro
+# Check if all services are running
+# Check service URLs
+# Check error logs
 ```
 
-### 8.2 Logs de Debug
+### 8.2 Debug Logs
 
-Para habilitar logs detalhados, adicione ao `appsettings.Development.json`:
+To enable detailed logs, add to `appsettings.Development.json`:
 
 ```json
 {
@@ -554,10 +554,10 @@ Para habilitar logs detalhados, adicione ao `appsettings.Development.json`:
 }
 ```
 
-### 8.3 Verificação de Portas
+### 8.3 Port Verification
 
 ```bash
-# Verificar portas em uso
+# Check ports in use
 netstat -an | findstr :7001
 netstat -an | findstr :7002
 netstat -an | findstr :7003
@@ -568,16 +568,16 @@ netstat -an | findstr :5672
 
 ---
 
-## 9. Configurações Avançadas
+## 9. Advanced Configuration
 
-### 9.1 Variáveis de Ambiente
+### 9.1 Environment Variables
 
 ```bash
 # MongoDB
 ConnectionStrings__MongoDb=mongodb://localhost:27017
 
 # JWT
-AuthSettings__JwtSecret=sua_chave_secreta_aqui
+AuthSettings__JwtSecret=your_secret_key_here
 AuthSettings__JwtIssuer=FastTech Foods
 AuthSettings__JwtAudience=FastTech Users
 AuthSettings__JwtExpirationHours=24
@@ -589,7 +589,7 @@ RabbitMQUser=admin
 RabbitMQPassword=password123
 ```
 
-### 9.2 Configurações por Serviço
+### 9.2 Service-Specific Configuration
 
 #### AuthService
 ```json
@@ -597,7 +597,7 @@ RabbitMQPassword=password123
   "AuthSettings": {
     "ConnectionString": "mongodb://localhost:27017",
     "DatabaseName": "fasttech_auth",
-    "JwtSecret": "sua_chave_secreta_aqui",
+    "JwtSecret": "your_secret_key_here",
     "JwtIssuer": "FastTech Foods",
     "JwtAudience": "FastTech Users",
     "JwtExpirationHours": 24
